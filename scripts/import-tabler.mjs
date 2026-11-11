@@ -282,6 +282,7 @@ export const PICKS = {
   IconWorldPlus: [[5, 6], 'spin'],
   IconWorldWww: [[6, 7, 8], 'pop'],
   IconZoomIn: [[1, 2], 'spin'],
+  IconX: [[1], 'turn-90'],
 };
 
 /**
@@ -333,7 +334,7 @@ for (const name of ['IconArrowBigDown', 'IconArrowBigUp', 'IconBadge', 'IconBolt
 
 // ── Solid: جسم Tabler المصمت (Filled) بالأزرق + المرجاني ─────────────────────
 /** خطوط ورموز — مالهاش شكل مصمت يتقري، فبتفضل line (أزرق + مرجاني) */
-const LINE_ONLY = new Set(['IconCheck', 'IconChevronDown', 'IconChevronRight', 'IconPlus', 'IconList', 'IconListCheck',
+const LINE_ONLY = new Set(['IconCheck', 'IconX', 'IconChevronDown', 'IconChevronRight', 'IconPlus', 'IconList', 'IconListCheck',
   'IconListDetails', 'IconMenu2', 'IconDots', 'IconDotsVertical', 'IconLink', 'IconDownload', 'IconExternalLink', 'IconClick',
   'IconWorld', 'IconBrandFacebook', 'IconBrandGoogle', 'IconBrandTiktok', 'IconBrandX', 'IconArrowBigDown', 'IconArrowBigUp',
   'IconBadge', 'IconFilter', 'IconPlayerPlay', 'IconPlayerStop', 'IconChartAreaLine', 'IconConfetti', 'IconLayoutSidebar']);
