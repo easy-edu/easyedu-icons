@@ -283,6 +283,40 @@ export const PICKS = {
   IconWorldWww: [[6, 7, 8], 'pop'],
   IconZoomIn: [[1, 2], 'spin'],
   IconX: [[1], 'turn-90'],
+  IconActivity: [[], 'beat'],
+  IconAddressBook: [[2], 'pop'],
+  IconAlarm: [[2, 3], 'ring'],
+  IconArchive: [[2], 'pop'],
+  IconArrowMerge: [[0], 'go-up'],
+  IconArrowNarrowLeft: [[1, 2], 'go-left'],
+  IconBrandTelegram: [[], 'go-up-right'],
+  IconCalendarCheck: [[4], 'pop'],
+  IconCalendarClock: [[4, 5], 'pop'],
+  IconCalendarStats: [[1, 2], 'pop'],
+  IconChartDonut3: [[0], 'spin-full'],
+  IconClockExclamation: [[2, 3], 'bounce'],
+  IconClockShield: [[2], 'pop'],
+  IconDatabase: [[0], 'bounce'],
+  IconFiles: [[2], 'lift'],
+  IconGauge: [[1, 2], 'wiggle'],
+  IconGift: [[3], 'bounce'],
+  IconGitMerge: [[2], 'pop'],
+  IconHandGrab: [[3], 'pop'],
+  IconHourglassLow: [[0], 'spin-half'],
+  IconInbox: [[1], 'sink'],
+  IconPhoneCall: [[1, 2], 'pop'],
+  IconPhoneCheck: [[1], 'pop'],
+  IconPhotoOff: [[4], 'spin'],
+  IconPinnedOff: [[0], 'spin'],
+  IconPower: [[1], 'pop'],
+  IconRadar2: [[0, 3], 'spin-full'],
+  IconRoute: [[0, 1], 'pop'],
+  IconShield: [[], 'beat'],
+  IconShieldOff: [[1], 'spin'],
+  IconShieldX: [[1, 2], 'spin'],
+  IconStarOff: [[0], 'spin'],
+  IconTimeline: [[1, 2, 3, 4], 'pop'],
+  IconUserShare: [[2, 3], 'nudge-up-right'],
 };
 
 /**
@@ -321,6 +355,7 @@ export const CUSTOM = {
     ['M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2', 'M'],
     ['M15 3a6 6 0 0 1 6 6m-6 -2a2 2 0 0 1 2 2', 'A'],
   ],
+  IconActivity: [['M3 12h4l3 8', 'M'], ['M10 20l4 -16', 'A'], ['M14 4l3 8h4', 'M']],
   IconMoon: [
     ['M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008', 'M'],
     ['M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2', 'A'],
@@ -328,7 +363,7 @@ export const CUSTOM = {
 };
 // الأشكال المقفولة: ظلّ مرجاني خفيف جوّه + الخط الأزرق
 for (const name of ['IconArrowBigDown', 'IconArrowBigUp', 'IconBadge', 'IconBolt', 'IconFlame', 'IconHeart', 'IconStar',
-  'IconPlayerPlay', 'IconPlayerStop', 'IconFolder', 'IconFilter', 'IconShare3', 'IconBrandFacebook', 'IconBrandGoogle', 'IconBrandTiktok']) {
+  'IconPlayerPlay', 'IconPlayerStop', 'IconFolder', 'IconFilter', 'IconShare3', 'IconBrandTelegram', 'IconBrandFacebook', 'IconBrandGoogle', 'IconBrandTiktok']) {
   CUSTOM[name] = 'tint';
 }
 
@@ -362,6 +397,10 @@ const BASE = {
   IconShoppingCartX: ['IconShoppingCart', null], IconUserCheck: ['IconUser', null], IconUserEdit: ['IconUser', null],
   IconUserHeart: ['IconUser', null], IconUserOff: ['IconUser', null], IconUserQuestion: ['IconUser', null],
   IconUserSearch: ['IconUser', null], IconUserX: ['IconUser', null], IconHourglassHigh: ['IconHourglass', null],
+  IconCalendarCheck: ['IconCalendar', [0]], IconCalendarClock: ['IconCalendar', [0]], IconCalendarStats: ['IconCalendar', [0]],
+  IconClockExclamation: ['IconClock', null], IconClockShield: ['IconClock', null], IconHourglassLow: ['IconHourglass', null],
+  IconPhotoOff: ['IconPhoto', null], IconPinnedOff: ['IconPin', null], IconShieldOff: ['IconShield', null],
+  IconShieldX: ['IconShield', null], IconStarOff: ['IconStar', null], IconUserShare: ['IconUser', null],
   IconFileSpreadsheet: ['IconFile', null], IconFileTypePdf: ['IconFile', null], IconLibraryPhoto: ['IconLibrary', null],
 };
 
@@ -379,6 +418,7 @@ const SOLID_EXTRA = {
   IconMessageCircle: [['M8 12h.01m3.99 0h.01m3.99 0h.01', 'A']],
   IconPhone: [['M15 3a6 6 0 0 1 6 6m-6 -2a2 2 0 0 1 2 2', 'A']],
   IconMoon: [['M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2', 'AF']],
+  IconShield: [['M12 11.6m-2.4 0a2.4 2.4 0 1 0 4.8 0a2.4 2.4 0 1 0 -4.8 0', 'AF']],
   IconShare3: [['M13 4v4c-6.575 1.028 -9.02 6.788 -10 12c-.037 .206 5.384 -5.962 10 -6v4l8 -7l-8 -7', 'K']],
 };
 
