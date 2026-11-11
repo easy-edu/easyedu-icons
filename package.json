@@ -1,0 +1,67 @@
+{
+  "name": "@easy-edu/icons",
+  "version": "0.1.0",
+  "description": "Easy Edu two-tone brand icons for React and React Native — blue body, coral accent, hover motion. Every icon our products use, no third-party icon dependency.",
+  "license": "MIT",
+  "author": "Easy Edu <info@easy-edu.net>",
+  "homepage": "https://easy-edu.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easy-edu/easyedu-icons.git"
+  },
+  "keywords": [
+    "icons",
+    "react",
+    "react-native",
+    "svg",
+    "easy-edu"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./native": {
+      "types": "./dist/native.d.ts",
+      "import": "./dist/native.mjs",
+      "require": "./dist/native.cjs"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./icons/*": "./icons/*",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "icons",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepublishOnly": "node scripts/build.mjs"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-native-svg": ">=13"
+  },
+  "peerDependenciesMeta": {
+    "react-native-svg": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

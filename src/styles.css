@@ -1,0 +1,116 @@
+/*
+ * @easy-edu/icons — حركات الـhover والوضع الداكن.
+ * استورده مرة واحدة في الـlayout:  import '@easy-edu/icons/styles.css';
+ * من غيره الأيقونات بتشتغل عادي بس من غير حركة.
+ *
+ * الألوان بتتغيّر بمتغيّرات CSS على أي عنصر فوق الأيقونة:
+ *   --ee-brand          الأزرق (الوضع الداكن بيفتّحه لوحده)
+ *   --ee-brand-accent   المرجاني
+ *   --ee-line           لون خطوط أيقونات line لوحدها (الافتراضي = --ee-brand؛
+ *                       currentColor لو عايزها بلون النص في مكان معيّن)
+ *   --ee-icon-main / --ee-icon-accent   لأيقونة أو منطقة بعينها (بيغلبوا اللي فوق)
+ */
+:root { --ee-brand: #0568E9; --ee-brand-accent: #F87A60; }
+:root.dark, .dark, [data-theme="dark"] { --ee-brand: #6DA5FB; }
+
+.ee-icon { flex-shrink: 0; overflow: visible; vertical-align: middle; }
+.ee-icon[data-mono] .ee-a { opacity: 0.6; }
+.ee-icon .ee-a,
+.ee-icon .ee-g { transform-box: fill-box; transform-origin: center; }
+.ee-icon[data-anim="grow"] .ee-a,
+.ee-icon[data-anim="rise"] .ee-a { transform-origin: bottom; }
+.ee-icon[data-anim="swing"] .ee-a,
+.ee-icon[data-anim="ring"] .ee-g { transform-origin: top; }
+.ee-icon[data-anim="hop"] .ee-g { transform-origin: bottom; }
+
+/*
+ * الحركة بتشتغل لما الماوس ييجي على الأيقونة نفسها، أو على الزرار/اللينك اللي هي جوّاه
+ * (عشان كارت أو عنصر قايمة كامل يحرّكها)، أو بالكيبورد. `data-ee-hover` لأي عنصر تاني.
+ */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :is(.ee-icon:hover,
+      :is(a, button, summary, label, [role="button"], [role="menuitem"], [role="tab"], [role="link"], [data-ee-hover]):is(:hover, :focus-visible) .ee-icon
+  )[data-anim-scope="part"] .ee-a,
+  :is(.ee-icon:hover,
+      :is(a, button, summary, label, [role="button"], [role="menuitem"], [role="tab"], [role="link"], [data-ee-hover]):is(:hover, :focus-visible) .ee-icon
+  )[data-anim-scope="whole"] .ee-g {
+    animation: var(--ee-anim) 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+}
+/* مكان تاني (موبايل ويب، شاشات لمس): الحركة مع الضغط */
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+  :is(a, button, [role="button"], [role="menuitem"], [role="tab"], [data-ee-hover]):active .ee-icon[data-anim-scope="part"] .ee-a,
+  :is(a, button, [role="button"], [role="menuitem"], [role="tab"], [data-ee-hover]):active .ee-icon[data-anim-scope="whole"] .ee-g {
+    animation: var(--ee-anim) 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  }
+}
+
+.ee-icon[data-anim="pop"]            { --ee-anim: ee-pop; }
+.ee-icon[data-anim="bounce"]         { --ee-anim: ee-bounce; }
+.ee-icon[data-anim="rise"]           { --ee-anim: ee-rise; }
+.ee-icon[data-anim="drop"]           { --ee-anim: ee-drop; }
+.ee-icon[data-anim="spin"]           { --ee-anim: ee-spin; }
+.ee-icon[data-anim="swing"]          { --ee-anim: ee-swing; }
+.ee-icon[data-anim="twinkle"]        { --ee-anim: ee-twinkle; }
+.ee-icon[data-anim="grow"]           { --ee-anim: ee-grow; }
+.ee-icon[data-anim="nudge"]          { --ee-anim: ee-nudge; }
+.ee-icon[data-anim="nudge-back"]     { --ee-anim: ee-nudge-back; }
+.ee-icon[data-anim="lift"]           { --ee-anim: ee-lift; }
+.ee-icon[data-anim="sink"]           { --ee-anim: ee-sink; }
+.ee-icon[data-anim="scan"]           { --ee-anim: ee-scan; }
+.ee-icon[data-anim="nudge-up-right"] { --ee-anim: ee-up-right; }
+.ee-icon[data-anim="ring"]           { --ee-anim: ee-ring; }
+.ee-icon[data-anim="wiggle"]         { --ee-anim: ee-wiggle; }
+.ee-icon[data-anim="blink"]          { --ee-anim: ee-blink; }
+.ee-icon[data-anim="turn"]           { --ee-anim: ee-turn; }
+.ee-icon[data-anim="beat"]           { --ee-anim: ee-beat; }
+.ee-icon[data-anim="shake"]          { --ee-anim: ee-shake; }
+.ee-icon[data-anim="hop"]            { --ee-anim: ee-hop; }
+.ee-icon[data-anim="flip"]           { --ee-anim: ee-flip; }
+.ee-icon[data-anim="turn-back"]      { --ee-anim: ee-turn-back; }
+.ee-icon[data-anim="turn-90"]        { --ee-anim: ee-turn-90; }
+.ee-icon[data-anim="spin-full"]      { --ee-anim: ee-spin-full; }
+.ee-icon[data-anim="spin-half"]      { --ee-anim: ee-spin-half; }
+.ee-icon[data-anim="twirl"]          { --ee-anim: ee-twirl; }
+.ee-icon[data-anim="go-right"]       { --ee-anim: ee-go-right; }
+.ee-icon[data-anim="go-left"]        { --ee-anim: ee-go-left; }
+.ee-icon[data-anim="go-up"]          { --ee-anim: ee-go-up; }
+.ee-icon[data-anim="go-down"]        { --ee-anim: ee-go-down; }
+.ee-icon[data-anim="go-up-right"]    { --ee-anim: ee-up-right; }
+.ee-icon[data-anim="go-down-left"]   { --ee-anim: ee-down-left; }
+.ee-icon[data-anim="go-down-right"]  { --ee-anim: ee-down-right; }
+
+/* كل حركة بترجع لنفس الشكل في الآخر (أو لشكل مطابق: الزائد بعد ٩٠°، النجمة بعد ٧٢°) */
+@keyframes ee-pop        { 40% { transform: scale(1.28); } }
+@keyframes ee-bounce     { 30% { transform: translateY(-3px); } 55% { transform: translateY(0.5px); } 75% { transform: translateY(-1px); } }
+@keyframes ee-rise       { 40% { transform: translateY(-1.5px) scaleY(1.12); } }
+@keyframes ee-drop       { 0% { transform: translateY(-3px); opacity: 0.4; } 60% { transform: translateY(0.6px); opacity: 1; } }
+@keyframes ee-spin       { 100% { transform: rotate(180deg); } }
+@keyframes ee-swing      { 25% { transform: rotate(16deg); } 55% { transform: rotate(-10deg); } 80% { transform: rotate(4deg); } }
+@keyframes ee-twinkle    { 40% { transform: scale(1.3) rotate(25deg); } }
+@keyframes ee-grow       { 0% { transform: scaleY(0.45); } 60% { transform: scaleY(1.12); } }
+@keyframes ee-nudge      { 40% { transform: translateX(2.5px); } }
+@keyframes ee-nudge-back { 40% { transform: translateX(-2.5px); } }
+@keyframes ee-lift       { 40% { transform: translateY(-2.5px); } }
+@keyframes ee-sink       { 40% { transform: translateY(2.5px); } }
+@keyframes ee-scan       { 30% { transform: translateY(-5px); } 70% { transform: translateY(5px); } }
+@keyframes ee-ring       { 15% { transform: rotate(14deg); } 35% { transform: rotate(-12deg); } 55% { transform: rotate(7deg); } 75% { transform: rotate(-3deg); } }
+@keyframes ee-wiggle     { 25% { transform: rotate(-9deg); } 55% { transform: rotate(7deg); } 80% { transform: rotate(-2deg); } }
+@keyframes ee-blink      { 45% { transform: scaleY(0.12); } }
+@keyframes ee-turn       { 50% { transform: rotate(40deg); } }
+@keyframes ee-beat       { 35% { transform: scale(1.16); } 65% { transform: scale(0.96); } }
+@keyframes ee-shake      { 20% { transform: translateX(-1.5px); } 40% { transform: translateX(1.5px); } 60% { transform: translateX(-1px); } 80% { transform: translateX(1px); } }
+@keyframes ee-hop        { 35% { transform: translateY(-3px) scaleY(1.04); } 60% { transform: translateY(0) scaleY(0.94); } 80% { transform: translateY(-0.8px); } }
+@keyframes ee-flip       { 25% { transform: scaleX(0); } 50% { transform: scaleX(-1); } 75% { transform: scaleX(0); } }
+@keyframes ee-turn-back  { 100% { transform: rotate(-360deg); } }
+@keyframes ee-turn-90    { 100% { transform: rotate(90deg); } }
+@keyframes ee-spin-full  { 100% { transform: rotate(360deg); } }
+@keyframes ee-spin-half  { 100% { transform: rotate(180deg); } }
+@keyframes ee-twirl      { 45% { transform: rotate(60deg) scale(1.18); } 100% { transform: rotate(72deg); } }
+@keyframes ee-go-right   { 40% { transform: translateX(3px); } }
+@keyframes ee-go-left    { 40% { transform: translateX(-3px); } }
+@keyframes ee-go-up      { 40% { transform: translateY(-3px); } }
+@keyframes ee-go-down    { 40% { transform: translateY(3px); } }
+@keyframes ee-up-right   { 40% { transform: translate(2.5px, -2.5px); } }
+@keyframes ee-down-left  { 40% { transform: translate(-2.5px, 2.5px); } }
+@keyframes ee-down-right { 40% { transform: translate(2.5px, 2.5px); } }

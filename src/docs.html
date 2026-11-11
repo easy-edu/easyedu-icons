@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Easy Edu Icons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/*STYLES*/
+:root { --bg: #F6F8FC; --card: #FFFFFF; --ink: #0A1A33; --muted: #5B6B85; --line: #E3E9F3; --chip: #EEF3FB; }
+:root.dark { --bg: #080D16; --card: #111A29; --ink: #EAF1FF; --muted: #8B9AB5; --line: #1E2A3D; --chip: #162238; }
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: Alexandria, system-ui, sans-serif; transition: background .2s; }
+header { max-width: 1180px; margin: 0 auto; padding: 48px 16px 20px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .ee-icon { width: 40px; height: 40px; }
+h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+h1 b { color: var(--ee-brand-accent); }
+.sub { margin-top: 10px; color: var(--muted); font-size: 15px; max-width: 640px; line-height: 1.7; }
+.tag { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 99px; background: var(--chip); color: var(--muted); }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: var(--chip); padding: 2px 7px; border-radius: 6px; }
+.bar { position: sticky; top: 0; z-index: 2; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.bar-in { max-width: 1180px; margin: 0 auto; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.bar input[type=search] { flex: 1 1 220px; min-width: 0; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 0 14px; font: inherit; font-size: 14px; }
+.ctl { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 13px; color: var(--muted); }
+.ctl input[type=color] { width: 22px; height: 22px; border: 0; padding: 0; background: none; cursor: pointer; }
+.ctl input[type=range] { width: 90px; accent-color: var(--ee-brand); }
+.ctl button { all: unset; cursor: pointer; color: var(--ink); font-weight: 500; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.card { all: unset; box-sizing: border-box; cursor: pointer; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 26px 10px 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: transform .2s, box-shadow .2s, border-color .2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -12px rgba(5, 104, 233, .35); border-color: color-mix(in srgb, var(--ee-brand) 40%, var(--line)); }
+.card .ee-icon { width: var(--size, 40px); height: var(--size, 40px); margin-bottom: 10px; }
+.card span { font-size: 12.5px; font-weight: 500; }
+.card small { font-size: 11px; color: var(--muted); }
+.card.copied span::after { content: " ✓"; color: #16a34a; }
+.seg { gap: 4px; padding: 0 4px; }
+.seg button { padding: 6px 10px; border-radius: 8px; color: var(--muted); font-weight: 500; }
+.seg button.on { background: var(--chip); color: var(--ink); }
+body.loop .ee-icon[data-anim-scope="part"] .ee-a, body.loop .ee-icon[data-anim-scope="whole"] .ee-g { animation: var(--ee-anim) .6s cubic-bezier(.34,1.4,.64,1) infinite; animation-delay: .4s; }
+.empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px; display: none; }
+footer { max-width: 1180px; margin: 0 auto; padding: 0 16px 48px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>Easy Edu <b>Icons</b></h1><span class="tag">v{{VERSION}} · {{COUNT}} icons · {{SOLID}} solid · {{LINE}} line</span></div>
+  <p class="sub">Two-tone icons in our identity: <b>solid</b> (blue body + coral accent) for the main sections,
+    and <b>line</b> (blue strokes + coral accent) for everything else. Each one moves on hover.
+    Every icon our products use — no third-party icon package.<br>
+    <code>npm i @easy-edu/icons</code> · <code>import { IconHome } from '@easy-edu/icons'</code> · click a card to copy.</p>
+</header>
+<div class="bar"><div class="bar-in">
+  <input type="search" id="q" placeholder="Search icons…" autocomplete="off">
+  <label class="ctl">Main <input type="color" id="main" value="#0568E9"></label>
+  <label class="ctl">Accent <input type="color" id="accent" value="#F87A60"></label>
+  <label class="ctl">Size <input type="range" id="size" min="16" max="72" value="40"></label>
+  <div class="ctl seg"><button data-show="all" class="on">All</button><button data-show="solid">Solid</button><button data-show="line">Line</button></div>
+  <label class="ctl"><input type="checkbox" id="blueLines"> Text-color lines</label>
+  <label class="ctl"><input type="checkbox" id="mono"> Mono</label>
+  <label class="ctl"><input type="checkbox" id="loop"> Play all</label>
+  <div class="ctl"><button id="dark">Dark</button></div>
+  <div class="ctl"><button id="reset">Reset</button></div>
+</div></div>
+<main id="grid">
+<!--CARDS-->
+<p class="empty" id="empty">No icon matches — design it and drop the SVG into <code>icons/</code>.</p>
+</main>
+<footer>
+  React (web): <code>import '@easy-edu/icons/styles.css'</code> once in your layout for hover motion & dark mode.<br>
+  React Native: <code>import { IconHome } from '@easy-edu/icons/native'</code>.<br>
+  Props: <code>size</code> · <code>color</code> · <code>accentColor</code> · <code>mono</code> · <code>animate</code> · <code>title</code>
+</footer>
+<script>
+const $ = (id) => document.getElementById(id);
+const root = document.documentElement;
+const cards = [...document.querySelectorAll('.card')];
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+if (store.get('ee-dark') === '1') root.classList.add('dark');
+$('dark').textContent = root.classList.contains('dark') ? 'Light' : 'Dark';
+const apply = () => {
+  const s = root.style;
+  s.setProperty('--ee-brand', $('main').value);
+  s.setProperty('--ee-brand-accent', $('accent').value);
+  if ($('mono').checked) { s.setProperty('--ee-icon-main', 'var(--ink)'); s.setProperty('--ee-icon-accent', 'var(--ink)'); }
+  else { s.removeProperty('--ee-icon-main'); s.removeProperty('--ee-icon-accent'); }
+  s.setProperty('--size', $('size').value + 'px');
+  cards.forEach((c) => c.querySelector('svg').toggleAttribute('data-mono', $('mono').checked));
+};
+['main', 'accent', 'size', 'mono'].forEach((id) => $(id).addEventListener('input', apply));
+$('reset').onclick = () => { $('main').value = '#0568E9'; $('accent').value = '#F87A60'; $('size').value = 40; $('mono').checked = false;
+  ['--ee-icon-main', '--ee-icon-accent', '--ee-brand', '--ee-brand-accent', '--size'].forEach((v) => root.style.removeProperty(v));
+  cards.forEach((c) => c.querySelector('svg').removeAttribute('data-mono')); };
+$('dark').onclick = () => { const on = root.classList.toggle('dark'); store.set('ee-dark', on ? '1' : '0'); $('dark').textContent = on ? 'Light' : 'Dark';
+  if (!root.style.getPropertyValue('--ee-brand')) return; $('main').value = on ? '#6DA5FB' : '#0568E9'; apply(); };
+let show = 'all';
+const filter = () => {
+  const q = $('q').value.trim().toLowerCase(); let n = 0;
+  cards.forEach((c) => { const hit = (show === 'all' || c.dataset.style === show) && (!q || (c.dataset.name + ' ' + c.dataset.slug + ' ' + c.dataset.animName).toLowerCase().includes(q)); c.hidden = !hit; n += hit; });
+  $('empty').style.display = n ? 'none' : 'block';
+};
+$('q').addEventListener('input', filter);
+document.querySelectorAll('[data-show]').forEach((b) => b.onclick = () => {
+  show = b.dataset.show; document.querySelectorAll('[data-show]').forEach((x) => x.classList.toggle('on', x === b)); filter(); });
+$('blueLines').addEventListener('input', (e) => e.target.checked ? root.style.setProperty('--ee-line', 'var(--ink)') : root.style.removeProperty('--ee-line'));
+$('loop').addEventListener('input', (e) => document.body.classList.toggle('loop', e.target.checked));
+cards.forEach((c) => c.addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(`import { ${c.dataset.name} } from '@easy-edu/icons';`); } catch {}
+  c.classList.add('copied'); setTimeout(() => c.classList.remove('copied'), 1200);
+}));
+</script>
+</body>
+</html>

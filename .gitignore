@@ -1,0 +1,8 @@
+node_modules/
+dist/
+# بتتولّد من src/docs.html بـnpm run build
+docs/
+.DS_Store
+*.log
+# بيانات مؤقتة لأداة import-tabler
+.tmp/
