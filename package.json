@@ -1,6 +1,6 @@
 {
   "name": "@easy-edu/icons",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Easy Edu two-tone brand icons for React and React Native — blue body, coral accent, hover motion. Every icon our products use, no third-party icon dependency.",
   "license": "MIT",
   "author": "Easy Edu <info@easy-edu.net>",
@@ -48,9 +48,13 @@
   },
   "peerDependencies": {
     "react": ">=18",
+    "react-native": ">=0.72",
     "react-native-svg": ">=13"
   },
   "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    },
     "react-native-svg": {
       "optional": true
     }

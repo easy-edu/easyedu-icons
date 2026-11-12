@@ -129,6 +129,62 @@ function compact({ anim, style, shapes }) {
   return style === 'line' ? { a: anim, s: 1, b: level } : { a: anim, b: level };
 }
 
+/**
+ * حدود تقريبية لشكل (لمركز الحركة على الموبايل): الويب عنده `transform-box: fill-box`
+ * والموبايل لأ، فالمركز بيتحسب هنا مرّة. الـpath بنقطه ونقط التحكّم (حدود أوسع شوية —
+ * المركز هو اللي يهمّ)، والقوس ببدايته ونهايته ومنتصفهم ± نصف القطر.
+ */
+function bounds(list) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  const add = (x, y) => { if (Number.isFinite(x) && Number.isFinite(y)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); } };
+  for (const [tag, a] of list) {
+    const n = (k) => +(a[k] ?? 0);
+    if (tag === 'rect') { add(n('x'), n('y')); add(n('x') + n('width'), n('y') + n('height')); }
+    else if (tag === 'circle') { add(n('cx') - n('r'), n('cy') - n('r')); add(n('cx') + n('r'), n('cy') + n('r')); }
+    else if (tag === 'ellipse') { add(n('cx') - n('rx'), n('cy') - n('ry')); add(n('cx') + n('rx'), n('cy') + n('ry')); }
+    else if (tag === 'line') { add(n('x1'), n('y1')); add(n('x2'), n('y2')); }
+    else if (tag === 'polygon' || tag === 'polyline') { const v = (a.points ?? '').trim().split(/[\s,]+/).map(Number); for (let i = 0; i + 1 < v.length; i += 2) add(v[i], v[i + 1]); }
+    else if (tag === 'path') {
+      const tokens = (a.d ?? '').match(/[a-zA-Z]|-?(?:\d*\.\d+|\d+\.?)(?:e[-+]?\d+)?/g) ?? [];
+      let i = 0, cmd = '', cx = 0, cy = 0, sx = 0, sy = 0;
+      const num = () => +tokens[i++];
+      const ARGS = { m: 2, l: 2, h: 1, v: 1, c: 6, s: 4, q: 4, t: 2, a: 7, z: 0 };
+      while (i < tokens.length) {
+        if (/[a-zA-Z]/.test(tokens[i])) cmd = tokens[i++];
+        const lower = cmd.toLowerCase();
+        const rel = cmd !== cmd.toUpperCase();
+        if (lower === 'z') { cx = sx; cy = sy; continue; }
+        if (i + ARGS[lower] > tokens.length || /[a-zA-Z]/.test(tokens[i] ?? 'x')) { if (!ARGS[lower]) continue; break; }
+        const bx = rel ? cx : 0, by = rel ? cy : 0;
+        if (lower === 'h') { cx = bx + num(); add(cx, cy); continue; }
+        if (lower === 'v') { cy = by + num(); add(cx, cy); continue; }
+        if (lower === 'a') {
+          // القوس: البداية والنهاية، ومنتصفهم ± نصف القطر (الانتفاخ في أي ناحية)
+          const rx = num(), ry = num(); i += 3; const px = cx, py = cy; cx = bx + num(); cy = by + num();
+          const mx = (px + cx) / 2, my = (py + cy) / 2;
+          add(px, py); add(cx, cy);
+          if (Math.abs(cx - px) >= Math.abs(cy - py)) { add(mx, my - ry); add(mx, my + ry); } else { add(mx - rx, my); add(mx + rx, my); }
+          continue;
+        }
+        const pts = ARGS[lower] / 2;
+        for (let k = 0; k < pts; k++) { const px = bx + num(), py = by + num(); add(px, py); if (k === pts - 1) { cx = px; cy = py; } }
+        if (lower === 'm') { sx = cx; sy = cy; cmd = rel ? 'l' : 'L'; }
+      }
+    }
+  }
+  return Number.isFinite(x0) ? [x0, y0, x1, y1] : [2, 2, 22, 22];
+}
+
+/** نقطة الحركة: مركز الجزء (أو الأيقونة)، أو تحته/فوقه للحركات اللي ليها نقطة ثابتة — زي styles.css */
+function origin({ anim, shapes }) {
+  const whole = ANIMS.whole.includes(anim);
+  const list = shapes.filter((s) => (whole ? (s[2] ?? s[3]) !== 'K' : s[2] === 'A' || s[3] === 'A')).map(([t, a]) => [t, a]);
+  const [x0, y0, x1, y1] = bounds(list);
+  const cx = (x0 + x1) / 2;
+  const at = ['grow', 'rise', 'hop'].includes(anim) ? y1 : ['swing', 'ring'].includes(anim) ? y0 : (y0 + y1) / 2;
+  return [+cx.toFixed(2), +at.toFixed(2)];
+}
+
 // ── القراءة ──────────────────────────────────────────────────────────────
 const files = readdirSync(ICONS).filter((f) => f.endsWith('.svg')).sort();
 const icons = files.map((f) => {
@@ -136,7 +192,7 @@ const icons = files.map((f) => {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) fail(f, 'اسم الملف لازم kebab-case زي receipt-2.svg');
   const raw = readFileSync(join(ICONS, f), 'utf8');
   const parsed = parse(f, raw);
-  return { slug, name: `Icon${pascal(slug)}`, parsed, data: compact(parsed) };
+  return { slug, name: `Icon${pascal(slug)}`, parsed, data: { ...compact(parsed), o: origin(parsed) } };
 });
 
 // أسماء الملفات ثابتة — الكتابة فوقها بتكفي (من غير مسح)
@@ -204,11 +260,113 @@ const nativeFactory = `
 const TAGS = { path: Path, rect: Rect, circle: Circle, ellipse: Ellipse, line: Line, polygon: Polygon, polyline: Polyline };
 const MAIN = '${COLORS.main}';
 const ACCENT = '${COLORS.accent}';
+const WHOLE = ${JSON.stringify(ANIMS.whole)};
+/*
+ * حركات الويب نفسها (styles.css) كإطارات: [وقت ٠–١, { x, y, r (درجة), s, sx, sy, o }].
+ * أي قناة مش مكتوبة في إطار = وضعها الطبيعي (زي transform في CSS)، والبداية والنهاية
+ * طبيعيين إلا لو اتكتبوا.
+ */
+const MOTIONS = {
+  pop: [[0.4, { s: 1.28 }]],
+  bounce: [[0.3, { y: -3 }], [0.55, { y: 0.5 }], [0.75, { y: -1 }]],
+  rise: [[0.4, { y: -1.5, sy: 1.12 }]],
+  drop: [[0, { y: -3, o: 0.4 }], [0.6, { y: 0.6 }]],
+  spin: [[1, { r: 180 }]],
+  swing: [[0.25, { r: 16 }], [0.55, { r: -10 }], [0.8, { r: 4 }]],
+  twinkle: [[0.4, { s: 1.3, r: 25 }]],
+  grow: [[0, { sy: 0.45 }], [0.6, { sy: 1.12 }]],
+  nudge: [[0.4, { x: 2.5 }]],
+  'nudge-back': [[0.4, { x: -2.5 }]],
+  lift: [[0.4, { y: -2.5 }]],
+  sink: [[0.4, { y: 2.5 }]],
+  scan: [[0.3, { y: -5 }], [0.7, { y: 5 }]],
+  'nudge-up-right': [[0.4, { x: 2.5, y: -2.5 }]],
+  ring: [[0.15, { r: 14 }], [0.35, { r: -12 }], [0.55, { r: 7 }], [0.75, { r: -3 }]],
+  wiggle: [[0.25, { r: -9 }], [0.55, { r: 7 }], [0.8, { r: -2 }]],
+  blink: [[0.45, { sy: 0.12 }]],
+  turn: [[0.5, { r: 40 }]],
+  beat: [[0.35, { s: 1.16 }], [0.65, { s: 0.96 }]],
+  shake: [[0.2, { x: -1.5 }], [0.4, { x: 1.5 }], [0.6, { x: -1 }], [0.8, { x: 1 }]],
+  hop: [[0.35, { y: -3, sy: 1.04 }], [0.6, { sy: 0.94 }], [0.8, { y: -0.8 }]],
+  flip: [[0.25, { sx: 0 }], [0.5, { sx: -1 }], [0.75, { sx: 0 }]],
+  'turn-back': [[1, { r: -360 }]],
+  'turn-90': [[1, { r: 90 }]],
+  'spin-full': [[1, { r: 360 }]],
+  'spin-half': [[1, { r: 180 }]],
+  twirl: [[0.45, { r: 60, s: 1.18 }], [1, { r: 72 }]],
+  'go-right': [[0.4, { x: 3 }]],
+  'go-left': [[0.4, { x: -3 }]],
+  'go-up': [[0.4, { y: -3 }]],
+  'go-down': [[0.4, { y: 3 }]],
+  'go-up-right': [[0.4, { x: 2.5, y: -2.5 }]],
+  'go-down-left': [[0.4, { x: -2.5, y: 2.5 }]],
+  'go-down-right': [[0.4, { x: 2.5, y: 2.5 }]],
+};
+const REST = { x: 0, y: 0, r: 0, s: 1, sx: 1, sy: 1, o: 1 };
+// نفس منحنى الويب: cubic-bezier(0.34, 1.4, 0.64, 1) — على كل جزء بين إطارين زي CSS
+const CURVE = Easing.bezier(0.34, 1.4, 0.64, 1);
+const AG = Animated.createAnimatedComponent(G);
+
+/**
+ * الموبايل مالوش hover: الحركة مع الضغط — على الأيقونة نفسها («play») أو على الزرار
+ * أو الكارت اللي هي جوّاه، بعدّاد في «IconPress» بيزيد مع كل ضغطة.
+ */
+const IconPress = createContext(0);
+
+let reduceMotion = false;
+try {
+  AccessibilityInfo.isReduceMotionEnabled().then((v) => { reduceMotion = v; }).catch(() => {});
+  AccessibilityInfo.addEventListener?.('reduceMotionChanged', (v) => { reduceMotion = v; });
+} catch (e) {}
+
+function motionProps(progress, data) {
+  const frames = MOTIONS[data.a] ?? MOTIONS.pop;
+  const times = [0, ...frames.map((f) => f[0]).filter((t) => t > 0 && t < 1), 1];
+  const at = (t) => { const f = frames.find((x) => x[0] === t); return f ? { ...REST, ...f[1] } : REST; };
+  const channel = (k) => {
+    const out = times.map((t) => at(t)[k]);
+    return out.every((v) => v === REST[k]) ? null : progress.interpolate({ inputRange: times, outputRange: out, easing: CURVE });
+  };
+  const s = channel('s');
+  const sx = channel('sx');
+  const sy = channel('sy');
+  const props = { originX: data.o ? data.o[0] : 12, originY: data.o ? data.o[1] : 12 };
+  const x = channel('x');
+  const y = channel('y');
+  const r = channel('r');
+  const o = channel('o');
+  if (x) props.translateX = x;
+  if (y) props.translateY = y;
+  if (r) props.rotation = r;
+  if (o) props.opacity = o;
+  if (s || sx) props.scaleX = s && sx ? Animated.multiply(s, sx) : s ?? sx;
+  if (s || sy) props.scaleY = s && sy ? Animated.multiply(s, sy) : s ?? sy;
+  return props;
+}
+
 function createIcon(data) {
+  const whole = WHOLE.includes(data.a);
   const Icon = forwardRef(function EasyEduIcon(props, ref) {
-    const { size = 24, color = MAIN, accentColor, mono = false, stroke = 2, strokeWidth, ...rest } = props;
+    const { size = 24, color = MAIN, accentColor, mono = false, animate = true, play = 0, stroke = 2, strokeWidth, ...rest } = props;
     const uid = 'ee' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
     const accent = mono ? color : accentColor ?? ACCENT;
+    const pressed = useContext(IconPress);
+    const progress = useRef(null);
+    if (!progress.current) progress.current = new Animated.Value(0);
+    const motion = useRef(null);
+    if (animate && !motion.current) motion.current = motionProps(progress.current, data);
+    const trigger = pressed + play;
+    const last = useRef(trigger);
+    useEffect(() => {
+      if (trigger === last.current) return;
+      last.current = trigger;
+      if (!animate || reduceMotion) return;
+      progress.current.stopAnimation();
+      progress.current.setValue(0);
+      Animated.timing(progress.current, { toValue: 1, duration: 600, easing: Easing.linear, useNativeDriver: false })
+        .start(() => progress.current.setValue(0));
+    }, [trigger, animate]);
+
     const paint = (v, cut) => (v === 'M' ? color : v === 'A' ? accent : v === 'K' ? (cut ? '#000' : 'none') : v);
     const shape = ([tag, attrs], key) => {
       const p = { key };
@@ -218,7 +376,10 @@ function createIcon(data) {
     const defs = [];
     const tree = (items) => items.map((n, i) => {
       if (Array.isArray(n)) return shape(n, i);
-      if (n.a) return h(G, { key: i, opacity: mono ? 0.6 : 1 }, n.a.map(shape));
+      if (n.a) {
+        const moving = animate && !whole && motion.current;
+        return h(moving ? AG : G, { key: i, opacity: mono ? 0.6 : 1, ...(moving ? motion.current : null) }, n.a.map(shape));
+      }
       const id = uid + 'm' + defs.length;
       defs.push(h(Mask, { key: id, id, maskUnits: 'userSpaceOnUse', x: -4, y: -4, width: 32, height: 32 },
         h(Rect, { x: -4, y: -4, width: 32, height: 32, fill: '#fff' }), n.k.map(shape)));
@@ -226,9 +387,10 @@ function createIcon(data) {
     });
     const body = tree(data.b);
     const line = data.s ? { strokeWidth: strokeWidth ?? stroke, strokeLinecap: 'round', strokeLinejoin: 'round' } : null;
+    const movingWhole = animate && whole && motion.current;
     return h(Svg, { ref, width: size, height: size, viewBox: '0 0 24 24', fill: 'none', ...line, ...rest },
       defs.length ? h(Defs, null, defs) : null,
-      h(G, null, body),
+      h(movingWhole ? AG : G, movingWhole ? motion.current : null, body),
     );
   });
   Icon.displayName = data.n;
@@ -269,16 +431,19 @@ exports.createIcon = createIcon;
 
 // ── الموبايل ─────────────────────────────────────────────────────────────
 const svgImports = 'Svg, { Circle, Defs, Ellipse, G, Line, Mask, Path, Polygon, Polyline, Rect }';
-writeFileSync(join(DIST, 'native.mjs'), `${banner}import { createElement as h, forwardRef, useId } from 'react';
+writeFileSync(join(DIST, 'native.mjs'), `${banner}import { createContext, createElement as h, forwardRef, useContext, useEffect, useId, useRef } from 'react';
+import { AccessibilityInfo, Animated, Easing } from 'react-native';
 import ${svgImports} from 'react-native-svg';
 ${nativeFactory}
 ${dataJs}
 export const ${exportsList.join(',\n  ')};
 ${esmAliases}
 export const brandIconNames = ${allNames};
+export { IconPress };
 `);
 writeFileSync(join(DIST, 'native.cjs'), `${banner}'use strict';
-const { createElement: h, forwardRef, useId } = require('react');
+const { createContext, createElement: h, forwardRef, useContext, useEffect, useId, useRef } = require('react');
+const { AccessibilityInfo, Animated, Easing } = require('react-native');
 const svg = require('react-native-svg');
 const Svg = svg.default ?? svg.Svg;
 const { Circle, Defs, Ellipse, G, Line, Mask, Path, Polygon, Polyline, Rect } = svg;
@@ -287,6 +452,7 @@ ${dataJs}
 ${icons.map((i) => `exports.${i.name} = createIcon(${i.name}Data);`).join('\n')}
 ${cjsAliases}
 exports.brandIconNames = ${allNames};
+exports.IconPress = IconPress;
 `);
 
 // ── الأنواع (مستقلة — من غير Tabler) ────────────────────────────────────
@@ -318,11 +484,15 @@ ${declare}
 export declare const brandIconNames: readonly string[];
 export declare function createIcon(data: unknown): Icon;
 `);
-writeFileSync(join(DIST, 'native.d.ts'), `${banner}import type { ForwardRefExoticComponent } from 'react';
+writeFileSync(join(DIST, 'native.d.ts'), `${banner}import type { Context, ForwardRefExoticComponent } from 'react';
 import type { SvgProps } from 'react-native-svg';
 export interface IconProps extends Omit<SvgProps, 'stroke'> {
 ${extras}
   strokeWidth?: number | string;
+  /** الحركة مع الضغط (الافتراضي true) — نفس حركة الـhover في الويب */
+  animate?: boolean;
+  /** عدّاد: كل زيادة = الحركة تشتغل مرّة (للضغط على الأيقونة نفسها) */
+  play?: number;
 }
 export type Icon = ForwardRefExoticComponent<IconProps>;
 export type TablerIcon = Icon;
@@ -330,6 +500,11 @@ export type BrandIcon = Icon;
 export type BrandIconProps = IconProps;
 ${declare}
 export declare const brandIconNames: readonly string[];
+/**
+ * عدّاد ضغطات للأيقونات اللي جوّه: الزرار أو الكارت بيزوّده مع «onPressIn»
+ * فكل أيقونة جوّاه بتعمل حركتها — زي الـhover على الزرار في الويب.
+ */
+export declare const IconPress: Context<number>;
 `);
 copyFileSync(join(ROOT, 'src', 'styles.css'), join(DIST, 'styles.css'));
 

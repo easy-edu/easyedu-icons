@@ -67,6 +67,27 @@ Icons keep Tabler's names (and the `Icon` / `TablerIcon` / `IconProps` types), s
 
 `.dark` / `[data-theme="dark"]` lightens the blue automatically.
 
+### Press motion (React Native)
+
+Phones have no hover, so on mobile each icon plays the **same motion on press** (same keyframes, 0.6s, same curve).
+Press the icon itself with `play` (a counter — every increase plays once), or let a button / card / tab play every
+icon inside it by bumping `IconPress`:
+
+```tsx
+import { IconPress } from '@easy-edu/icons/native';
+
+const [presses, setPresses] = useState(0);
+<Pressable onPressIn={() => setPresses((n) => n + 1)}>
+  <IconPress.Provider value={presses}>
+    <IconBell size={22} />  {/* rings when the row is pressed */}
+  </IconPress.Provider>
+</Pressable>
+```
+
+The motion origin (the part's centre, its top for `swing`/`ring`, its bottom for `grow`/`rise`/`hop`) is computed at
+build time — React Native SVG has no `transform-box`. `animate={false}` turns it off; "Reduce motion" skips it.
+Needs `react-native` (Animated, part of RN) and `react-native-svg`.
+
 ### Hover motion
 
 The coral part animates when the pointer is over the icon **or** over the link / button / menu item
