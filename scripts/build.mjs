@@ -330,7 +330,12 @@ function motionProps(progress, data) {
   const s = channel('s');
   const sx = channel('sx');
   const sy = channel('sy');
-  const props = { originX: data.o ? data.o[0] : 12, originY: data.o ? data.o[1] : 12 };
+  /*
+   * من غير originX/originY: Animated بيبعت للـG القيمة اللي اتغيّرت بس (rotation لوحدها)،
+   * و react-native-svg بيحسب التحويل من غير المركز — الأيقونة بتلفّ حوالين ركن الرسمة (0,0)
+   * وتخرج برّه المربّع. المركز دلوقتي تحريكين ثابتين حوالين المجموعة اللي بتتحرّك (\`around\`).
+   */
+  const props = {};
   const x = channel('x');
   const y = channel('y');
   const r = channel('r');
@@ -342,6 +347,14 @@ function motionProps(progress, data) {
   if (s || sx) props.scaleX = s && sx ? Animated.multiply(s, sx) : s ?? sx;
   if (s || sy) props.scaleY = s && sy ? Animated.multiply(s, sy) : s ?? sy;
   return props;
+}
+
+/** الحركة حوالين مركزها — تحريك للمركز، الحركة نفسها، وتحريك راجع (بدل origin على الـG المتحرّك) */
+function around(data, motion, key, extra, children) {
+  const ox = data.o ? data.o[0] : 12;
+  const oy = data.o ? data.o[1] : 12;
+  return h(G, { key, transform: 'translate(' + ox + ' ' + oy + ')' },
+    h(AG, { ...extra, ...motion }, h(G, { transform: 'translate(' + -ox + ' ' + -oy + ')' }, children)));
 }
 
 function createIcon(data) {
@@ -357,6 +370,11 @@ function createIcon(data) {
     if (animate && !motion.current) motion.current = motionProps(progress.current, data);
     const trigger = pressed + play;
     const last = useRef(trigger);
+    // رسمة من جديد بعد ما الحركة تخلص: لو الشاشة اتغيّرت في نصّ الحركة (الزرار بيفتح شاشة تانية)
+    // آخر إطار ممكن يفضل لازق على العنصر — الرسم بيرجّع كل الخصائص لوضعها الطبيعي
+    const [, settle] = useState(0);
+    const alive = useRef(true);
+    useEffect(() => () => { alive.current = false; }, []);
     useEffect(() => {
       if (trigger === last.current) return;
       last.current = trigger;
@@ -364,7 +382,10 @@ function createIcon(data) {
       progress.current.stopAnimation();
       progress.current.setValue(0);
       Animated.timing(progress.current, { toValue: 1, duration: 600, easing: Easing.linear, useNativeDriver: false })
-        .start(() => progress.current.setValue(0));
+        .start(() => {
+          progress.current.setValue(0);
+          if (alive.current) settle((n) => n + 1);
+        });
     }, [trigger, animate]);
 
     const paint = (v, cut) => (v === 'M' ? color : v === 'A' ? accent : v === 'K' ? (cut ? '#000' : 'none') : v);
@@ -378,7 +399,7 @@ function createIcon(data) {
       if (Array.isArray(n)) return shape(n, i);
       if (n.a) {
         const moving = animate && !whole && motion.current;
-        return h(moving ? AG : G, { key: i, opacity: mono ? 0.6 : 1, ...(moving ? motion.current : null) }, n.a.map(shape));
+        return moving ? around(data, motion.current, i, { opacity: mono ? 0.6 : 1 }, n.a.map(shape)) : h(G, { key: i, opacity: mono ? 0.6 : 1 }, n.a.map(shape));
       }
       const id = uid + 'm' + defs.length;
       defs.push(h(Mask, { key: id, id, maskUnits: 'userSpaceOnUse', x: -4, y: -4, width: 32, height: 32 },
@@ -390,7 +411,7 @@ function createIcon(data) {
     const movingWhole = animate && whole && motion.current;
     return h(Svg, { ref, width: size, height: size, viewBox: '0 0 24 24', fill: 'none', ...line, ...rest },
       defs.length ? h(Defs, null, defs) : null,
-      h(movingWhole ? AG : G, movingWhole ? motion.current : null, body),
+      movingWhole ? around(data, motion.current, 'm', null, body) : h(G, null, body),
     );
   });
   Icon.displayName = data.n;
@@ -431,7 +452,7 @@ exports.createIcon = createIcon;
 
 // ── الموبايل ─────────────────────────────────────────────────────────────
 const svgImports = 'Svg, { Circle, Defs, Ellipse, G, Line, Mask, Path, Polygon, Polyline, Rect }';
-writeFileSync(join(DIST, 'native.mjs'), `${banner}import { createContext, createElement as h, forwardRef, useContext, useEffect, useId, useRef } from 'react';
+writeFileSync(join(DIST, 'native.mjs'), `${banner}import { createContext, createElement as h, forwardRef, useContext, useEffect, useId, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing } from 'react-native';
 import ${svgImports} from 'react-native-svg';
 ${nativeFactory}
